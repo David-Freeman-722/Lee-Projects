@@ -4,7 +4,7 @@ import config
 #SETTINGS:
 
 config.scale = 40 #determines the side length of a cell in pixels
-config.fps = 2    #determines the animation speed in frames per second
+config.fps = 8   #determines the animation speed in frames per second
 config.showPath = False# set to True to shade the cells which have been visited by the forklift
 
 import stringParser
@@ -44,7 +44,7 @@ import display
 #print(stringParser.queryWarehouse(2,1))
 #print(stringParser.queryWarehouse(3,2))
 #print(stringParser.getListOfBoxes())
-print(stringParser.getMatrix())
+#print(stringParser.getMatrix())
 #print(stringParser.getInitialForkliftCoordinates())
 
 

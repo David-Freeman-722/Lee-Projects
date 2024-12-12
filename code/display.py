@@ -83,7 +83,8 @@ def main(commandList):
             else:
                 pass
            if self.isDropOffZone(forkliftX,forkliftY):
-                self.image.fill((0,255,0))
+                color = (0,255,0)
+                self.image.fill(color)
            else:
                 pass
 
@@ -216,7 +217,8 @@ def main(commandList):
             if not forklift.hasBox:
                 if forkliftLiftsThisBox(self,boxID,forkliftX,forkliftY):
                     forklift.hasBox = True
-                    self.kill()
+                    self.image.fill((0,255,0))
+                    #self.kill()
 
 
     class Forklift(pygame.sprite.Sprite):
@@ -287,6 +289,7 @@ def main(commandList):
             if self.hasBox:
                 self.image = pygame.image.load(self.selectLoadedImage())
                 self.image = pygame.transform.scale(self.image, (config.scale, config.scale))
+
             else:
                 self.image = pygame.image.load(self.selectEmptyImage())
                 self.image = pygame.transform.scale(self.image, (config.scale, config.scale))
@@ -354,7 +357,8 @@ def main(commandList):
         xcoord=((listOfEmptyCells[x])[0])[0]
         ycoord = ((listOfEmptyCells[x])[0])[1]
         sprite = EmptyCell(
-            WHITE,
+            #WHITE,
+            GREEN,
             config.scale, config.scale,
             xcoord,
             ycoord)
@@ -411,11 +415,7 @@ def main(commandList):
     forklift = Forklift(config.initialForkliftX, config.initialForkliftY)
     config.sprite_group.add(forklift)
 
-
-
     clock = pygame.time.Clock()
-
-
 
 
     commandIndex = 0
