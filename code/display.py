@@ -341,7 +341,7 @@ def main(commandList):
 
     # Set up the screen
     screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
-    pygame.display.set_caption("Boxes remaining = " + str(numberOfRemainingBoxes))
+    pygame.display.set_caption("Warehouse")
 
     # Create a group of sprites
     config.sprite_group = pygame.sprite.Group()
