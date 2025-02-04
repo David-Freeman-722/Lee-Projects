@@ -138,7 +138,9 @@ def getListOfEmptyCells():
 
 def queryWarehouse(row,col):
     cellType=(((config.warehouse[row])[col])[1])
-    config.queriedCells.append([col*config.scale,row*config.scale])
+    queriedCell=[col*config.scale,row*config.scale]
+    if not(queriedCell in config.queriedCells):    
+        config.queriedCells.append(queriedCell)
     return cellType
 
 

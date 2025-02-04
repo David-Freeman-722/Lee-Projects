@@ -53,7 +53,7 @@ import display
 stringParser.queryWarehouse(1,0)
 stringParser.queryWarehouse(2,1)
 stringParser.queryWarehouse(3,2)
-
+stringParser.queryWarehouse(3,2)
 
 config.commandList = [
  ['move','E'],
