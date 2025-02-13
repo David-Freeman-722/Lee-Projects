@@ -1,5 +1,6 @@
 
 import config
+import frontier
 
 #SETTINGS:
 
@@ -53,6 +54,8 @@ import display
 stringParser.queryWarehouse(1,0)
 stringParser.queryWarehouse(2,1)
 stringParser.queryWarehouse(3,2)
+print(stringParser.queryWarehouse(3,3))
+
 
 
 config.commandList = [
@@ -128,6 +131,7 @@ config.commandList = [
 
 
 
+    
 
 
 # DO NOT CHANGE THE CODE BELOW THIS LINE

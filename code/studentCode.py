@@ -1,4 +1,3 @@
-
 import config
 
 #SETTINGS:
@@ -25,12 +24,6 @@ import display
                   #                                                                                        *
                   #*****************************************************************************************
                   #                                                                                        *
-                  # name:    stringParser.getMatrix()                                                      *
-                  # args:    none                                                                          *
-                  # returns: 2-D matrix representation of the warehouse cells                              *
-                  #                                                                                        *
-                  #*****************************************************************************************
-                  #                                                                                        *
                   # name:    stringParser.getListOfBoxes()                                                 *
                   # args:    none                                                                          *
                   # returns: list of box cells                                                             *
@@ -44,7 +37,7 @@ import display
 #print(stringParser.queryWarehouse(2,1))
 #print(stringParser.queryWarehouse(3,2))
 #print(stringParser.getListOfBoxes())
-#print(stringParser.getMatrix())
+
 #print(stringParser.getInitialForkliftCoordinates())
 
 
