@@ -12,6 +12,7 @@ class Frontier:
     # Adds a node to the priority queue frontier
     def add_node(self, node: Node):
         self.queue.append(node)
+        breakpoint()
         self.queue.sort(key=lambda n: n.cost) # Sorts list based on cost
 
     # Removes node from frontier priority queue (occurs when the node is chosen)
