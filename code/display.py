@@ -486,9 +486,7 @@ def main(commandList):
         else:
             boxID=1000
             command=commandList[commandIndex][0]
-
-
-
+            
             match command:
                 case 'move':
                     config.commandDirection= (commandList[commandIndex])[1]
@@ -496,7 +494,6 @@ def main(commandList):
                     nextForkliftXIncrement = delta[0]
                     nextForkliftYIncrement = delta[1]
                     config.forkliftHasMovedSinceLast=True
-
                 case 'lift':
                     boxID = commandList[commandIndex][1]
                     nextForkliftXIncrement = 0
@@ -530,8 +527,6 @@ def main(commandList):
         for s in config.sprite_group:
             if isinstance(s, Box):
                 s.draw_number()
-
-
 
         for queried_cell in config.queriedCells:
                     for sprite_in_sprite_group in config.sprite_group:

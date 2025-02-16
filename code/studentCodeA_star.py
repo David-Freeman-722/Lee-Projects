@@ -1,16 +1,15 @@
 
 import config
-import frontier
 
 #SETTINGS:
 
 config.scale = 40 #determines the side length of a cell in pixels
 config.fps = 8   #determines the animation speed in frames per second
-config.showPath = False# set to True to shade the cells which have been visited by the forklift
+config.showPath = True# set to True to shade the cells which have been visited by the forklift
 
 import stringParser
 import display
-
+import a_star
 
 #API:             #*****************************************************************************************
                   #                                                                                        *
@@ -58,7 +57,7 @@ print(stringParser.queryWarehouse(3,3))
 
 
 
-config.commandList = [
+og_list = [
  ['move','E'],
 ['move','E'],
 ['move','E'],
@@ -128,7 +127,10 @@ config.commandList = [
 ['drop','W'],
 ]
 
+stars = a_star.main()
 
+# config.commandList = og_list
+config.commandList = stars
 
 
     
