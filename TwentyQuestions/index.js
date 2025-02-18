@@ -38,12 +38,11 @@ class Node {
 }
 
 class BinaryTree {
-    constructor(){
-        this.root = null;
-        this.size = 0;
+    constructor(node){
+        this.root = node;
+        this.size = 1;
     }
-
-    addNode(question, side) {
+    addNode(question, side, currentNode) {
         if(!this.root){
             this.root = new Node(question);
             return;
@@ -57,11 +56,9 @@ class BinaryTree {
         newNode.setParent(currentNode);
         this.size += 1;
     }
-
     getRoot(){
         return this.root;
     }
-
     getSize(){
         return this.size;
     }
@@ -103,7 +100,7 @@ function loadTreeFromJSON(file, callback) {
   
 
 function downloadJSON(tree, filename = "binary_tree.json") {
-    const jsonString = JSON.stringify(treeToJSON(tree.root), null, 2); // Pretty print
+    const jsonString = JSON.stringify(treeToJSON(tree.root), null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -116,7 +113,7 @@ function downloadJSON(tree, filename = "binary_tree.json") {
 // Function shows intro content and hides responses
 function intro() {
     console.log("Beginnning the app");
-    document.getElementById("End").style.display = 'none';
+    document.getElementById("aiEnd").style.display = 'none';
     document.getElementById("NoQuestions").style.display = 'none';
     document.getElementById("Intro").style.display = 'block';
     document.getElementById("introQ").textContent = currentNode.getQuestion();
@@ -126,18 +123,19 @@ function intro() {
 function noQuestions() {
     console.log("No more questions");
     document.getElementById("Intro").style.display = 'none';
-    document.getElementById("End").style.display = 'none';
+    document.getElementById("aiEnd").style.display = 'none';
     document.getElementById("NoQuestions").style.display = 'block';
 }
 
 // Shows end screen content and offers for the user to play again
-function end() {
+function aiEnd() {
     console.log("End of app.");
     document.getElementById("Intro").style.display = 'none';
     document.getElementById("NoQuestions").style.display = 'none';
-    document.getElementById("End").style.display = 'block'
+    document.getElementById("aiEnd").style.display = 'block'
     document.getElementById("answer").textContent = currentNode.getQuestion();
     currentNode = tree.getRoot();
+    numOfQuestions = 0;
     document.getElementById("json").value = null;
 }
 
@@ -148,20 +146,27 @@ function getNoQFormInput(form){
     document.getElementById("yesGuess").value = ""; // Resets guess text box
     let oldGuess = currentNode.getQuestion();
     currentNode.setQuestion(qInput); // Replaces bad node question with better question
-    tree.addNode(oldGuess, "no"); // Adds old guess as no child of new question
-    tree.addNode(yesGuess, "yes"); // Adds new yes guess as yes child of new question
+    tree.addNode(oldGuess, "no", currentNode); // Adds old guess as no child of new question
+    tree.addNode(yesGuess, "yes", currentNode); // Adds new yes guess as yes child of new question
     downloadJSON(tree);
 }
 
 function treeLogic(ans){
-    var root = tree.getRoot();
+    numOfQuestions++;
     console.log("START OF TREE LOGIC")
     console.log("Tree logic root " + currentNode.getQuestion());
     console.log("Tree logic child yes " + currentNode.getYes());
-    console.log("Tree logic child no " + currentNode.getNo())
+    console.log("Tree logic child no " + currentNode.getNo());
+    // Checks to see if the computer has already asked 20 questions, if so 
+    // goes to a player win screen
+    if(numOfQuestions > 20){
+        noQuestions();
+        return; // Ends the app
+    }
+
     if(ans){
         if(currentNode.getYes() == null){ // If the yes node has no children end it
-            end();
+            aiEnd();
         } else { // Go to more questions 
             currentNode = currentNode.getYes();
             intro();
@@ -175,8 +180,6 @@ function treeLogic(ans){
         }
     }
 }
-
-
 
 // Defines on event functions that fire when certain events occur.  Used to get
 // js out of the htm file.
@@ -207,6 +210,7 @@ inputFormSubmit.addEventListener("submit", function(event) {
     event.preventDefault();
     getNoQFormInput(inputFormSubmit);
     currentNode = tree.getRoot();
+    numOfQuestions = 0;
     intro();
 });
 
@@ -230,10 +234,10 @@ document.addEventListener("DOMContentLoaded", function(){
 })
 
 // Global vars for program to run
-var tree = null;
 var firstQuestion = "Are you thinking of a parrot?";
-tree = new BinaryTree();
-tree.addNode(firstQuestion);
+var firstNode = new Node(firstQuestion);
+var tree = new BinaryTree(firstNode);
 var currentNode = tree.getRoot();
+var numOfQuestions = 0;
 
 

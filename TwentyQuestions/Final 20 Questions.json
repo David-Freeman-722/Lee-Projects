@@ -1,0 +1,101 @@
+{
+  "question": "Is it a vehicle?",
+  "yes": {
+    "question": "Does it float on water?",
+    "yes": {
+      "question": "Boat",
+      "yes": null,
+      "no": null
+    },
+    "no": {
+      "question": "Does it fly?",
+      "yes": {
+        "question": "Helicopter",
+        "yes": null,
+        "no": null
+      },
+      "no": {
+        "question": "Car",
+        "yes": null,
+        "no": null
+      }
+    }
+  },
+  "no": {
+    "question": "Is it a building?",
+    "yes": {
+      "question": "Do sick people go there to receive treatment?",
+      "yes": {
+        "question": "Hospital",
+        "yes": null,
+        "no": null
+      },
+      "no": {
+        "question": "School",
+        "yes": null,
+        "no": null
+      }
+    },
+    "no": {
+      "question": "Is it alive?",
+      "yes": {
+        "question": "Does it fly?",
+        "yes": {
+          "question": "Bird",
+          "yes": null,
+          "no": null
+        },
+        "no": {
+          "question": "Does it swim?",
+          "yes": {
+            "question": "Fish",
+            "yes": null,
+            "no": null
+          },
+          "no": {
+            "question": "Human",
+            "yes": null,
+            "no": null
+          }
+        }
+      },
+      "no": {
+        "question": "Is it an idea or subject of learning?",
+        "yes": {
+          "question": "Chemistry",
+          "yes": null,
+          "no": null
+        },
+        "no": {
+          "question": "Is it a political entity?",
+          "yes": {
+            "question": "Country",
+            "yes": null,
+            "no": null
+          },
+          "no": {
+            "question": "Is it a piece of furniture?",
+            "yes": {
+              "question": "Chair",
+              "yes": null,
+              "no": null
+            },
+            "no": {
+              "question": "Does it do math?",
+              "yes": {
+                "question": "Calculator",
+                "yes": null,
+                "no": null
+              },
+              "no": {
+                "question": "Are you thinking of a parrot?",
+                "yes": null,
+                "no": null
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
