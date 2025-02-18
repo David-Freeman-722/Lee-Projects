@@ -19,7 +19,7 @@ class Position():
 # Code to create node objects that contain a grid position and cost
 
 class Node(Position):
-    def __init__(self, h_cost: int, g_cost: int, position: Position, parent):
+    def __init__(self, h_cost: int, g_cost: int, position: Position, parent, type='e'):
         super().__init__(position.row, position.col)
         self.h_cost: int = h_cost
         self.g_cost: int = g_cost

@@ -21,11 +21,11 @@ def getInitialForkliftCoordinates(warehouse: list[list]):
 # gets the coordinates of the boxes inside of the grid
 def getBoxCoordinates(w):
     boxes = []
-    for row in w:
-        for col in row:
+    for index, row in enumerate(w):
+        for i, col in enumerate(row):
             if col=='b':
-                col_index = row.index(col)
-                row_index = w.index(row)
+                col_index = i
+                row_index = index
                 box = Position(row_index, col_index)
                 boxes.append(box)
     return boxes
@@ -61,8 +61,14 @@ def check_adjacent_cells(node: Node, goal: Position, directions: dict[str, Posit
                 g = 3
             else:
                 g = 2
+            # if cell_type == 'b':
+            #     breakpoint()
             cell_node = Node(h(node, goal), g, cell_pos, node)
             node.child = cell_node
+            # if cell_type == 'b':
+            #     return [cell_node]
+            # else:
+            #     valid_cells.append(cell_node)
             valid_cells.append(cell_node)
     return valid_cells
 
@@ -100,55 +106,87 @@ def main():
                 "NW": Position(-1,-1), "NE": Position(-1,1), "SW": Position(1,-1), "SE": Position(1,1)}
     forklift_movements = []
     total_movements = []
+    current_forklift_position = 0
+    start_nodes = []
+    reached = {}
     
     for index, box in enumerate(box_coords):
-        start_node = Node(h(original_fork_position, box), 0, original_fork_position, None)
+        if index == 0:
+            start_node = Node(h(original_fork_position, box), 0, original_fork_position, None)
+            # start_nodes.append(start_node)
+        else:
+            start_node = Node(h(current_forklift_position, box), reached[original_fork_position.position], current_forklift_position, None)
+            start_nodes.append(start_node)
         frontier = Frontier(start_node)
         adj_cell_nodes = check_adjacent_cells(start_node, box, directions, grid_dims)
         box_node = frontier.expand_frontier(adj_cell_nodes, box)
+        
+        # Expands the frontier until the box_node is found
         while box_node is None:
             box_node = expand_smallest_frontier_neighbor(frontier, box, directions, grid_dims)
-            print(box.position)
-            print("IM STUCK IN BOX NODE LOOP")
-            print(len(frontier.queue))
-            print(index)
-            # print(frontier.reached)
         
         opt_path_coordinates = []
         current_node = box_node
         
+        # Backtracks adding the coordinates of every node in the optimal path to a list
         while current_node.parent is not None:
             opt_path_coordinates.append(current_node.position)
             current_node = current_node.parent
-            print("IM STUCK IN CURRENT NODE LOOP")
 
         opt_path_coordinates.reverse() # Reverses order to get the direction
+        # Generates the directions for the robot to reach the cell before the box
         to_box_moves = generate_movements(opt_path_coordinates.copy(), directions)
-        # Generates movement directions to get to the box
+        
+        # Copies over the movements to a master list of commands
         forklift_movements = to_box_moves.copy()
         
         # Adds lift command to pick up the box
         forklift_movements.append(['lift', index])
-        print(forklift_movements)
+      
         # Reverses coordinates to get the inverse directions
         opt_path_coordinates.reverse()
+        
+        # Adds a path through the previous starting nodes to get to the cell to drop off the box
+        for node in start_nodes:
+            opt_path_coordinates.append(node.position)
+        
+        # Generates commands to get the forklift back next to the dropoff point
         back_to_unload = generate_movements(opt_path_coordinates.copy(), directions)
         
+
         backtrack_movements = back_to_unload.copy()
-        last_move = backtrack_movements.pop()
-        backtrack_movements.append(['drop', last_move[1]])
-        backtrack_movements.append(last_move)
         
+        # Removes the final command as that command moves onto the drop zone tile
+        backtrack_movements.pop()
+        
+        # Gets current forklift coordinates
+        current_forklift_coords = opt_path_coordinates[len(opt_path_coordinates)-1]
+        # Gets current forklift position
+        current_forklift_position = Position(current_forklift_coords[0], current_forklift_coords[1])
+        
+        # Set drop direction so that the forklift can drop off the box in the drop zone
+        dropzone_delta_coords = Position(original_fork_position.row - current_forklift_position.row, original_fork_position.col - current_forklift_position.col)
+
+        # Finds the direction the forklift should drop its box
+        drop_dir= [k for k, v in directions.items() if v.position == dropzone_delta_coords.position]
+        
+        # Adds drop command to master list of commands
+        backtrack_movements.append(['drop', drop_dir[0]])
+        
+        # Adds backtracking movements to the forklift movements for the current box
         forklift_movements.extend(backtrack_movements)
         
+        # Adds commands for current box to master list of commands
         total_movements.extend(forklift_movements)
+        
+        # Resets the commands for the new box
         backtrack_movements.clear()
         forklift_movements.clear()
-        
-        print(forklift_movements)
-        
-    print(total_movements)
-    breakpoint()
+    
+        # Updates the reached dictionary with the values from the current frontier
+        reached.update(frontier.get_reached_dictionary())
+    
+    print(reached)
     return total_movements
 
 if __name__ == 'main':

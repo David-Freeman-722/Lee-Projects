@@ -55,4 +55,7 @@ class Frontier:
         costs = [i.cost for i in self.queue]
         return costs
     
+    def empty_queue(self):
+        self.queue.clear()
+    
     
