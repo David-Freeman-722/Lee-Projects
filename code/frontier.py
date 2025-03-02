@@ -42,6 +42,10 @@ class Frontier:
     def get_frontier_queue(self):
         return self.queue
     
+    # Adds entries to reached dict
+    def add_to_reached_dictionary(self, dict):
+        self.reached.update(dict)
+    
     # Returns the reached dictionary storing all the visited nodes
     def get_reached_dictionary(self):
         return self.reached

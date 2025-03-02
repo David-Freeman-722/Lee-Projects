@@ -480,7 +480,6 @@ def main(commandList):
                 done = True
         # Update all sprites
 
-
         if commandIndex >= len(commandList):
            pass
         else:

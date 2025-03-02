@@ -16,7 +16,7 @@ def getInitialForkliftCoordinates(warehouse: list[list]):
             if col=='f':
                 col_index = row.index(col)
                 row_index = warehouse.index(row)
-                return Position(row_index, col_index)
+                return Position(row_index, col_index, 'f')
 
 # gets the coordinates of the boxes inside of the grid
 def getBoxCoordinates(w):
@@ -26,15 +26,21 @@ def getBoxCoordinates(w):
             if col=='b':
                 col_index = i
                 row_index = index
-                box = Position(row_index, col_index)
+                box = Position(row_index, col_index, 'b')
                 boxes.append(box)
     return boxes
 
 # Calculates heuristic distance between current node position and the goal position
-def h(node: Node, goal: Position):
+def h(node_pos: Position, goal: Position):
     # g for first node would be 0
-    manhattan_row_dist = abs(node.row-goal.row)
-    manhattan_col_dist = abs(node.col-goal.col)
+    manhattan_row_dist = abs(node_pos.row-goal.row)
+    manhattan_col_dist = abs(node_pos.col-goal.col)
+    
+    cell_type = stringParser.queryWarehouse(node_pos.row, node_pos.col)
+    
+    if cell_type == 'w':
+        return float('inf')
+    
     diagonal_dist = 0
     smaller_manhattan_dist = manhattan_row_dist if manhattan_row_dist < manhattan_col_dist else manhattan_col_dist
     bigger_manhattan_dist = manhattan_row_dist if manhattan_row_dist > manhattan_col_dist else manhattan_col_dist
@@ -47,6 +53,7 @@ def h(node: Node, goal: Position):
 def check_adjacent_cells(node: Node, goal: Position, directions: dict[str, Position], dims: tuple[int, int]):
     valid_types = ['e', 'b']
     valid_cells = []
+    cell_pos = Position(node.row, node.col)
     for direction in directions.values():
         checked_row = direction.row + node.row
         checked_col = direction.col + node.col
@@ -54,32 +61,19 @@ def check_adjacent_cells(node: Node, goal: Position, directions: dict[str, Posit
             continue
         elif(checked_row > dims[0] - 1 or checked_col > dims[1] - 1):
             continue
-        cell_type = stringParser.queryWarehouse(checked_row, checked_col)    
+        
+        cell_type = stringParser.queryWarehouse(checked_row, checked_col)
+        
         if cell_type in valid_types:
-            cell_pos = Position(checked_row, checked_col)
+            cell_pos = Position(checked_row, checked_col, cell_type)
             if abs(direction.row) + abs(direction.col) > 1:
                 g = 3
             else:
                 g = 2
-            # if cell_type == 'b':
-            #     breakpoint()
             cell_node = Node(h(node, goal), g, cell_pos, node)
             node.child = cell_node
-            # if cell_type == 'b':
-            #     return [cell_node]
-            # else:
-            #     valid_cells.append(cell_node)
             valid_cells.append(cell_node)
     return valid_cells
-
-
-# Function looks thru frontier nodes and expands the node with the smallest cost
-def expand_smallest_frontier_neighbor(frontier: Frontier, goal: Position, directions: dict[str, Position], dims: tuple[int, int]):
-    # breakpoint()
-    first_node = frontier.get_first_node()
-    adj_nodes = check_adjacent_cells(first_node, goal, directions, dims)
-    goal_node = frontier.expand_frontier(adj_nodes, goal)
-    return goal_node
 
 def generate_movements(path_coords: list, directions: dict[str, Position]):
     movements = []
@@ -88,10 +82,11 @@ def generate_movements(path_coords: list, directions: dict[str, Position]):
         end = path_coords[i]
         row_diff = end[0] - start[0]
         col_diff = end[1] - start[1]
+        print(f"Start: {start}, End: {end}, Row Diff: {row_diff}, Col Diff: {col_diff}")
         direction_diff = Position(row_diff, col_diff)
         for direction, value in directions.items():
             if direction_diff.position == value.position:
-                movements.append(['move',direction])
+                movements.append(['move', direction])
     return movements
 
 def main():
@@ -107,6 +102,7 @@ def main():
     forklift_movements = []
     total_movements = []
     current_forklift_position = 0
+    node_list = []
     start_nodes = []
     reached = {}
     
@@ -119,27 +115,41 @@ def main():
             start_nodes.append(start_node)
         frontier = Frontier(start_node)
         adj_cell_nodes = check_adjacent_cells(start_node, box, directions, grid_dims)
+        node_list.extend(adj_cell_nodes)
         box_node = frontier.expand_frontier(adj_cell_nodes, box)
         
         # Expands the frontier until the box_node is found
         while box_node is None:
-            box_node = expand_smallest_frontier_neighbor(frontier, box, directions, grid_dims)
+            first_node = frontier.get_first_node()
+            adj_nodes = check_adjacent_cells(first_node, box, directions, grid_dims)
+            node_list.extend(adj_nodes)
+            box_node = frontier.expand_frontier(adj_nodes, box)
         
+        # breakpoint()
         opt_path_coordinates = []
         current_node = box_node
-        
+       
         # Backtracks adding the coordinates of every node in the optimal path to a list
         while current_node.parent is not None:
-            opt_path_coordinates.append(current_node.position)
+            cell_type = stringParser.queryWarehouse(current_node.row, current_node.col)
+            if cell_type != 'w':
+                opt_path_coordinates.append(current_node.position)
+            # opt_path_coordinates.append(current_node.position)
             current_node = current_node.parent
 
+        # print(f"Number of coordinates the bot will move to {len(opt_path_coordinates)}")
+        # print(f"Final position after backtracking: {current_node.position}")
+        
         opt_path_coordinates.reverse() # Reverses order to get the direction
+        
         # Generates the directions for the robot to reach the cell before the box
         to_box_moves = generate_movements(opt_path_coordinates.copy(), directions)
-        
+        print(f"To box moves and length: {to_box_moves}, {len(to_box_moves)}")
+    
+       
         # Copies over the movements to a master list of commands
         forklift_movements = to_box_moves.copy()
-        
+     
         # Adds lift command to pick up the box
         forklift_movements.append(['lift', index])
       
@@ -149,7 +159,7 @@ def main():
         # Adds a path through the previous starting nodes to get to the cell to drop off the box
         for node in start_nodes:
             opt_path_coordinates.append(node.position)
-        
+
         # Generates commands to get the forklift back next to the dropoff point
         back_to_unload = generate_movements(opt_path_coordinates.copy(), directions)
         
@@ -158,6 +168,7 @@ def main():
         
         # Removes the final command as that command moves onto the drop zone tile
         backtrack_movements.pop()
+        
         
         # Gets current forklift coordinates
         current_forklift_coords = opt_path_coordinates[len(opt_path_coordinates)-1]
@@ -185,9 +196,4 @@ def main():
     
         # Updates the reached dictionary with the values from the current frontier
         reached.update(frontier.get_reached_dictionary())
-    
-    print(reached)
     return total_movements
-
-if __name__ == 'main':
-    main()
